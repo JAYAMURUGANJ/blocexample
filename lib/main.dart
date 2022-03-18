@@ -1,4 +1,5 @@
 import 'package:blocexample/bloc/covid_bloc.dart';
+import 'package:blocexample/bloc/search_bloc.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
@@ -22,6 +23,9 @@ class MyApp extends StatelessWidget {
           BlocProvider<CovidBloc>(
             create: (_) => CovidBloc(),
           ),
+          BlocProvider<SearchBloc>(
+            create: (_) => SearchBloc(),
+          )
         ],
         child: MaterialApp(
           title: 'Flutter Demo',

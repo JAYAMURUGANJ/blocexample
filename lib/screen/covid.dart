@@ -1,8 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-
-import '../bloc/counter_bloc.dart';
 import '../bloc/covid_bloc.dart';
+import '../bloc/search_bloc.dart';
 import '../model/covid_model.dart';
 
 class CovidPage extends StatefulWidget {
@@ -23,13 +22,28 @@ class _CovidPageState extends State<CovidPage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      //appbar with search bar and title of the page with delegate to the appbar delegate
       appBar: AppBar(
-        title: BlocBuilder<CounterBloc, CounterState>(
-          builder: (context, state) {
-            return Text("Counter Value: ${state.counter}");
-          },
-        ),
+        title: const Text('Covid-19'),
+        actions: <Widget>[
+          IconButton(
+            icon: const Icon(Icons.search),
+            onPressed: () {
+              showSearch(
+                  context: context,
+                  delegate: CovidSearch(
+                      searchBloc: BlocProvider.of<SearchBloc>(context)));
+            },
+          )
+        ],
       ),
+      // appBar: AppBar(
+      //   title: BlocBuilder<CounterBloc, CounterState>(
+      //     builder: (context, state) {
+      //       return Text("Counter Value: ${state.counter}");
+      //     },
+      //   ),
+      // ),
       body: BlocConsumer<CovidBloc, CovidState>(
         bloc: _newsBloc,
         listener: (context, state) {
@@ -85,4 +99,75 @@ class _CovidPageState extends State<CovidPage> {
   }
 
   Widget _buildLoading() => const Center(child: CircularProgressIndicator());
+}
+
+class CovidSearch extends SearchDelegate<String> {
+  SearchBloc searchBloc;
+  CovidSearch({required this.searchBloc});
+  late String queryString;
+  @override
+  List<Widget> buildActions(BuildContext context) {
+    return [
+      IconButton(
+        icon: const Icon(Icons.clear),
+        onPressed: () {
+          query = '';
+        },
+      ),
+    ];
+  }
+
+  @override
+  Widget buildLeading(BuildContext context) {
+    return IconButton(
+      icon: AnimatedIcon(
+        icon: AnimatedIcons.menu_arrow,
+        progress: transitionAnimation,
+      ),
+      onPressed: () {
+        close(context, 'Search Country');
+      },
+    );
+  }
+
+  @override
+  Widget buildResults(BuildContext context) {
+    queryString = query;
+    searchBloc.add(Search(query: query));
+    return BlocBuilder<SearchBloc, SearchState>(
+      builder: (BuildContext context, SearchState state) {
+        if (state is SearchUninitialized) {
+          return const Center(child: CircularProgressIndicator());
+        }
+        if (state is SearchError) {
+          return const Center(
+            child: Text('Failed To Load'),
+          );
+        }
+        if (state is SearchLoaded) {
+          return ListView.builder(
+              itemBuilder: (BuildContext context, int index) {
+                return InkWell(
+                  onTap: () {},
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text(state.countryList[index].country.toString()),
+                    ],
+                  ),
+                );
+
+                //Text(state.recipes[index].title);
+              },
+              itemCount: state.countryList.length);
+        }
+        return const Scaffold();
+      },
+    );
+  }
+
+  @override
+  Widget buildSuggestions(BuildContext context) {
+    return Container();
+  }
 }

@@ -8,12 +8,3 @@ abstract class CovidEvent extends Equatable {
 }
 
 class GetCovidList extends CovidEvent {}
-
-class GetCovidListByCountry extends CovidEvent {
-  final String country;
-
-  const GetCovidListByCountry(this.country);
-
-  @override
-  List<Object> get props => [country];
-}

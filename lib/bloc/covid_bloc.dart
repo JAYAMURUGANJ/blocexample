@@ -22,19 +22,5 @@ class CovidBloc extends Bloc<CovidEvent, CovidState> {
         emit(CovidError(e.toString()));
       }
     });
-
-    on<GetCovidListByCountry>((event, emit) async {
-      try {
-        emit(CovidLoading());
-        final mList =
-            await _apiRepository.fetchCovidListByCountry(event.country);
-        emit(CovidLoaded(mList));
-        if (mList.error != null) {
-          emit(CovidError(mList.error));
-        }
-      } catch (e) {
-        emit(CovidError(e.toString()));
-      }
-    });
   }
 }
